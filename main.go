@@ -27,8 +27,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to load SDK config, %v", err)
 	}
-	models.GetItem(cfg, models.URL{
-		ShortenedUrl:   "http://localhost:3000/aHR0cHM6Ly9nb2J5ZXhhbXBsZS5jb20vY29tbWFuZC1saW5lLWFyZ3VtZW50cwo",
-		DestinationUrl: "https://gobyexample.com/command-line-arguments",
-	}, "URLShortener")
+	tinyUrl := models.URL{
+		ShortenedUrl: "http://localhost:3000/aHR0cHM6Ly9nb2J5ZXhhbXBsZS5jb20vY29tbWFuZC1saW5lLWFyZ3VtZW50cwo=",
+	}
+	tinyUrl.GetItem(cfg, "URLShortener")
 }

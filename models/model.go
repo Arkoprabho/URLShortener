@@ -3,8 +3,14 @@ package models
 import (
 	"net/url"
 
+	"context"
+	"errors"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"log"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
 type URL struct {
@@ -18,6 +24,30 @@ func (tinyUrl *URL) GetKey() map[string]types.AttributeValue {
 		panic(err)
 	}
 	return map[string]types.AttributeValue{"shortenedUrl": shortenedUrl}
+}
+
+func (tinyUrl *URL) GetItem(cfg aws.Config, tableName string) (bool, error) {
+	svc := dynamodb.NewFromConfig(cfg)
+
+	resp, err := svc.GetItem(context.TODO(), &dynamodb.GetItemInput{
+		Key:       tinyUrl.GetKey(),
+		TableName: aws.String(tableName),
+	})
+	if err != nil {
+		log.Fatalf("Coud not get item, %v", err)
+	}
+	if resp.Item == nil {
+		log.Printf("Could not find %v\n", tinyUrl.ShortenedUrl)
+		msg := "Could not find '" + tinyUrl.ShortenedUrl + "'"
+		return false, errors.New(msg)
+	}
+
+	err = attributevalue.UnmarshalMap(resp.Item, &tinyUrl)
+
+	log.Printf("Short URL: %s\n", tinyUrl.ShortenedUrl)
+	log.Printf("Destination URL: %s\n", tinyUrl.DestinationUrl)
+
+	return true, err
 }
 
 func IsValidUrl(sourceUrl string) bool {
