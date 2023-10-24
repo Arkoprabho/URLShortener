@@ -14,14 +14,7 @@ func init() {
 
 func main() {
 	tableName := "URLShortener"
-	sourceURL := "Superman"
 	log.Println("Starting URL Shortener")
-	prefix := ""
-	valid := models.IsValidUrl(sourceURL)
-	if !valid {
-		prefix = "in"
-	}
-	log.Printf("URL is %svalid", prefix)
 
 	log.Println("Listing tables")
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-south-1"))

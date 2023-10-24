@@ -69,7 +69,7 @@ func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string) (bool, error) {
 	log.Printf("Put item: %v to table: %v", tinyUrl, tableName)
 	return true, nil
 }
-func IsValidUrl(sourceUrl string) bool {
+func isValidUrl(sourceUrl string) bool {
 	value, err := url.Parse(sourceUrl)
 	return err == nil && value.Scheme != "" && value.Host != ""
 }
