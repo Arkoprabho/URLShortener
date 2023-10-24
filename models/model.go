@@ -14,8 +14,8 @@ import (
 )
 
 type URL struct {
-	ShortenedUrl   string
-	DestinationUrl string
+	ShortenedUrl   string `dynamodbav:"shortenedUrl"`
+	DestinationUrl string `dynamodbav:"destinationUrl"`
 }
 
 func (tinyUrl *URL) GetKey() map[string]types.AttributeValue {
@@ -50,6 +50,25 @@ func (tinyUrl *URL) GetItem(cfg aws.Config, tableName string) (bool, error) {
 	return true, err
 }
 
+func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string) (bool, error) {
+	svc := dynamodb.NewFromConfig(cfg)
+	item, err := attributevalue.MarshalMap(tinyUrl)
+
+	if err != nil {
+		log.Fatalf("Unable to marshall object %v", err)
+		return false, err
+	}
+	_, err = svc.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String(tableName),
+		Item:      item,
+	})
+	if err != nil {
+		log.Fatalf("Unable to add item in DB: %v", err)
+		return false, err
+	}
+	log.Printf("Put item: %v to table: %v", tinyUrl, tableName)
+	return true, nil
+}
 func IsValidUrl(sourceUrl string) bool {
 	value, err := url.Parse(sourceUrl)
 	return err == nil && value.Scheme != "" && value.Host != ""

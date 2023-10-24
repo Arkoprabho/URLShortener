@@ -13,6 +13,7 @@ func init() {
 }
 
 func main() {
+	tableName := "URLShortener"
 	sourceURL := "Superman"
 	log.Println("Starting URL Shortener")
 	prefix := ""
@@ -30,5 +31,12 @@ func main() {
 	tinyUrl := models.URL{
 		ShortenedUrl: "http://localhost:3000/aHR0cHM6Ly9nb2J5ZXhhbXBsZS5jb20vY29tbWFuZC1saW5lLWFyZ3VtZW50cwo=",
 	}
-	tinyUrl.GetItem(cfg, "URLShortener")
+	tinyUrl.GetItem(cfg, tableName)
+
+	anotherUrl := models.URL{
+		ShortenedUrl:   "superman",
+		DestinationUrl: "Sucks",
+	}
+
+	anotherUrl.PutItem(cfg, tableName)
 }
