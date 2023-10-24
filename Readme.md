@@ -1,3 +1,5 @@
+[![Build + Deploy](https://github.com/Arkoprabho/URLShortener/actions/workflows/main.yml/badge.svg)](https://github.com/Arkoprabho/URLShortener/actions/workflows/main.yml)
+
 # URL Shortener
 
 A tiny CLI to understand the nuances of Golang while working with some third party libraries.
