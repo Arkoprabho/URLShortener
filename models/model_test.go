@@ -4,26 +4,18 @@ import (
 	"testing"
 )
 
-func TestInvalidity(t *testing.T) {
-	url := "a.com/b"
-	got := IsValidUrl(url)
-	want := false
-
-	if got != want {
-		t.Error("Got valid URL when the URL is actually invalid")
+func TestShortURL(t *testing.T) {
+	tinyUrl := URL{
+		DestinationUrl: "https://www.bing.com/search?q=method+documentation+in+golang",
 	}
-}
+	expectedShortURL := "aHR0cHM6Ly93d3cuYmluZy5jb20vc2VhcmNoP3E9bWV0aG9kK2RvY3VtZW50YXRpb24raW4rZ29sYW5n"
 
-func TestUrlValidity(t *testing.T) {
-	url := "https://a.com/b"
-	got := IsValidUrl(url)
-	want := true
+	generatedShortURL, err := tinyUrl.GenerateShortURL()
 
-	if got != want {
-		t.Error("Got invalid URL when the URL is actually valid")
+	if err != nil {
+		t.Errorf("Error generating short URL with valid URL")
 	}
-}
-
-func TestListTables(t *testing.T) {
-	ListTables(cfg)
+	if generatedShortURL != expectedShortURL {
+		t.Errorf("Generated URL: %v does not match expected URL: %v", generatedShortURL, expectedShortURL)
+	}
 }
