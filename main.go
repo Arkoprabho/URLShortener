@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/Arkoprabho/URLShortener/models"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -15,21 +16,43 @@ func init() {
 func main() {
 	tableName := "URLShortener"
 	log.Println("Starting URL Shortener")
+	if len(os.Args) < 3 {
+		log.Fatal("Not enough arguments")
+		panic("Not enough arguments")
+	}
 
-	log.Println("Listing tables")
+	sourceUrl := os.Args[1]
+	operation := os.Args[2]
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-south-1"))
 	if err != nil {
 		log.Fatalf("Unable to load SDK config, %v", err)
 	}
-	tinyUrl := models.URL{
-		ShortenedUrl: "http://localhost:3000/aHR0cHM6Ly9nb2J5ZXhhbXBsZS5jb20vY29tbWFuZC1saW5lLWFyZ3VtZW50cwo=",
-	}
-	tinyUrl.GetItem(cfg, tableName)
 
-	anotherUrl := models.URL{
-		ShortenedUrl:   "superman",
-		DestinationUrl: "Sucks",
+	if operation == "store" {
+		log.Printf("Storing %v", sourceUrl)
+		tinyUrl := models.URL{
+			DestinationUrl: sourceUrl,
+		}
+		shortUrl, err := tinyUrl.GenerateShortURL()
+		log.Printf("Short URL: %v", shortUrl)
+		if err != nil {
+			panic(err)
+		}
+		tinyUrl.ShortenedUrl = shortUrl
+		_, err = tinyUrl.PutItem(cfg, tableName)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	anotherUrl.PutItem(cfg, tableName)
+	if operation == "fetch" {
+		log.Printf("Fetching the destination URL for %v", sourceUrl)
+		tinyUrl := models.URL{
+			ShortenedUrl: sourceUrl,
+		}
+		tinyUrl.GetItem(cfg, tableName)
+		log.Printf("%v", tinyUrl.DestinationUrl)
+	}
+
 }
