@@ -1,13 +1,15 @@
 package models
 
 import (
+	"encoding/base64"
 	"net/url"
 
 	"context"
 	"errors"
+	"log"
+
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -69,6 +71,16 @@ func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string) (bool, error) {
 	log.Printf("Put item: %v to table: %v", tinyUrl, tableName)
 	return true, nil
 }
+
+// Generates a shorter URL as a base64 encoded form of the destination URL.
+// Checks if the URL is valid, and only then returns a short URL
+func (tinyUrl URL) GenerateShortURL() (string, error) {
+	if isValidUrl(tinyUrl.DestinationUrl) {
+		return base64.StdEncoding.EncodeToString([]byte(tinyUrl.DestinationUrl)), nil
+	}
+	return "", errors.New("Invalid URL")
+}
+
 func isValidUrl(sourceUrl string) bool {
 	value, err := url.Parse(sourceUrl)
 	return err == nil && value.Scheme != "" && value.Host != ""
