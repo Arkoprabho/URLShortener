@@ -81,6 +81,7 @@ func (tinyUrl URL) GenerateShortURL() (string, error) {
 	return "", errors.New("Invalid URL")
 }
 
+// Checks if a URL is valid or not. Returns true if valid
 func isValidUrl(sourceUrl string) bool {
 	value, err := url.Parse(sourceUrl)
 	return err == nil && value.Scheme != "" && value.Host != ""
