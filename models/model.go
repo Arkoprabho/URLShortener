@@ -52,33 +52,35 @@ func (tinyUrl *URL) GetItem(cfg aws.Config, tableName string) (bool, error) {
 	return true, err
 }
 
-func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string) (bool, error) {
+func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string, errorChannel chan error) {
 	svc := dynamodb.NewFromConfig(cfg)
 	item, err := attributevalue.MarshalMap(tinyUrl)
 
 	if err != nil {
+		errorChannel <- err
 		log.Fatalf("Unable to marshall object %v", err)
-		return false, err
 	}
 	_, err = svc.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(tableName),
 		Item:      item,
 	})
 	if err != nil {
+		errorChannel <- err
 		log.Fatalf("Unable to add item in DB: %v", err)
-		return false, err
 	}
+
 	log.Printf("Put item: %v to table: %v", tinyUrl, tableName)
-	return true, nil
+	errorChannel <- nil
 }
 
 // Generates a shorter URL as a base64 encoded form of the destination URL.
 // Checks if the URL is valid, and only then returns a short URL
-func (tinyUrl URL) GenerateShortURL() (string, error) {
+func (tinyUrl URL) GenerateShortURL(shortUrl chan string, errorChannel chan error) {
 	if isValidUrl(tinyUrl.DestinationUrl) {
-		return base64.StdEncoding.EncodeToString([]byte(tinyUrl.DestinationUrl)), nil
+		shortUrl <- base64.StdEncoding.EncodeToString([]byte(tinyUrl.DestinationUrl))
+		errorChannel <- nil
 	}
-	return "", errors.New("Invalid URL")
+	errorChannel <- errors.New("Invalid URL")
 }
 
 // Checks if a URL is valid or not. Returns true if valid

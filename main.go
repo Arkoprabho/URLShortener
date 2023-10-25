@@ -34,16 +34,28 @@ func main() {
 		tinyUrl := models.URL{
 			DestinationUrl: sourceUrl,
 		}
-		shortUrl, err := tinyUrl.GenerateShortURL()
+
+		shortUrl := make(chan string)
+		errorChannel := make(chan error)
+		go tinyUrl.GenerateShortURL(shortUrl, errorChannel)
 		log.Printf("Short URL: %v", shortUrl)
+		tinyUrl.ShortenedUrl = <-shortUrl
+		log.Printf("ShortenedURL is: %v", tinyUrl.ShortenedUrl)
+		err = <-errorChannel
+
 		if err != nil {
 			panic(err)
 		}
-		tinyUrl.ShortenedUrl = shortUrl
-		_, err = tinyUrl.PutItem(cfg, tableName)
+
+		ddbErrorChannel := make(chan error) // Reset the channel. There must be a better way to do this
+		go tinyUrl.PutItem(cfg, tableName, ddbErrorChannel)
+		err = <-ddbErrorChannel
+
 		if err != nil {
+			log.Printf("Couldn't put item")
 			panic(err)
 		}
+		log.Printf("Done putting item")
 	}
 
 	if operation == "fetch" {
