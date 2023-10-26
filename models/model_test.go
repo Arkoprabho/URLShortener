@@ -13,8 +13,8 @@ func TestShortURL(t *testing.T) {
 	shortUrl := make(chan string)
 	errorChannel := make(chan error)
 	go tinyUrl.GenerateShortURL(shortUrl, errorChannel)
-	generatedShortURL := <-shortUrl
 	err := <-errorChannel
+	generatedShortURL := <-shortUrl
 
 	if err != nil {
 		t.Errorf("Error generating short URL with valid URL")

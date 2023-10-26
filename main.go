@@ -39,9 +39,9 @@ func main() {
 		errorChannel := make(chan error)
 		go tinyUrl.GenerateShortURL(shortUrl, errorChannel)
 		log.Printf("Short URL: %v", shortUrl)
+		err = <-errorChannel
 		tinyUrl.ShortenedUrl = <-shortUrl
 		log.Printf("ShortenedURL is: %v", tinyUrl.ShortenedUrl)
-		err = <-errorChannel
 
 		if err != nil {
 			panic(err)

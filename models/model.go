@@ -77,8 +77,8 @@ func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string, errorChannel chan 
 // Checks if the URL is valid, and only then returns a short URL
 func (tinyUrl URL) GenerateShortURL(shortUrl chan string, errorChannel chan error) {
 	if isValidUrl(tinyUrl.DestinationUrl) {
-		shortUrl <- base64.StdEncoding.EncodeToString([]byte(tinyUrl.DestinationUrl))
 		errorChannel <- nil
+		shortUrl <- base64.StdEncoding.EncodeToString([]byte(tinyUrl.DestinationUrl))
 	}
 	errorChannel <- errors.New("Invalid URL")
 }
