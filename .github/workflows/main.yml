@@ -26,3 +26,10 @@ jobs:
       - name: Build
         run: |
           go build .
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ github.workspace }}/URLShortener
+          name: ${{ github.run_number }}
+          retention-days: 2
