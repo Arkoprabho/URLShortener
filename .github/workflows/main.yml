@@ -25,7 +25,7 @@ jobs:
 
       - name: Build
         run: |
-          go build .
+          go build -ldflags "-s -w" .
 
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
