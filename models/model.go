@@ -60,6 +60,15 @@ func (tinyUrl *URL) PutItem(cfg aws.Config, tableName string, errorChannel chan 
 		errorChannel <- err
 		log.Fatalf("Unable to marshall object %v", err)
 	}
+	isPresent, err := tinyUrl.GetItem(cfg, tableName)
+	if err != nil {
+		errorChannel <- nil
+		return
+	}
+	// Get item to avoid replacing
+	if isPresent {
+		log.Printf("Item already exists. Not putting new one.")
+	}
 	_, err = svc.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(tableName),
 		Item:      item,
